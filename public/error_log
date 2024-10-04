@@ -1,0 +1,1 @@
+[15-Oct-2023 12:32:43 UTC] PHP Fatal error:  Composer detected issues in your platform: Your Composer dependencies require a PHP version ">= 8.0.2". You are running 7.4.33. in /home/k34jtj9rzm6b/public_html/Parihara/vendor/composer/platform_check.php on line 24

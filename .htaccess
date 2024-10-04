@@ -1,0 +1,12 @@
+RewriteEngine on
+
+# prevent endless loop
+RewriteCond %{ENV:REDIRECT_STATUS} 200
+RewriteRule ^ - [L]
+
+# redirect client to non-public
+RewriteRule ^public/(.*)$ $1 [R,L]
+
+# send real page to client
+RewriteCond %{REQUEST_URI} !^public
+RewriteRule ^.*$ public/$0 [L]

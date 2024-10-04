@@ -20,7 +20,7 @@ class AuthController extends Controller
     /**
  * @OA\Info(
  *      version="1.0.0",
- *      title="Laravel API Documentation",
+ *      title="Parihara Api Documentation",
  *      description="This is a sample API documentation using Swagger in Laravel",
  *      @OA\Contact(
  *          email="your-email@example.com"
@@ -31,6 +31,8 @@ class AuthController extends Controller
  *      )
  * )
  */
+
+
 
     public function sendotp(Request $request)
     {
@@ -220,6 +222,57 @@ class AuthController extends Controller
         
     }
 
+    /**
+ * @OA\Post(
+ *     path="/api/requesting_for_otp",
+ *     tags={"OTP"},
+ *     summary="Request an OTP",
+ *     description="Send OTP to the user's mobile number for verification",
+ *     operationId="requesting_for_otp",
+ *     @OA\RequestBody(
+ *         required=true,
+ *         description="User mobile number",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="mobile",
+ *                 type="string",
+ *                 description="Mobile number of the user",
+ *                 example="9876**3210"
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="OTP sent successfully",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="status", type="boolean", example=true),
+ *             @OA\Property(property="message", type="string", example="Otp sent successfully.")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Bad request, validation errors",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="status", type="boolean", example=false),
+ *             @OA\Property(property="message", type="string", example="Validation error message")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Internal server error",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="status", type="boolean", example=false),
+ *             @OA\Property(property="message", type="string", example="Error message")
+ *         )
+ *     )
+ * )
+ */
+
+
     public function requesting_for_otp(Request $request)
     {
         $credentials = $request->only('mobile');
@@ -277,8 +330,71 @@ class AuthController extends Controller
       
     }
     
-    
-     public function otpUpdatePassword(Request $request)
+    /**
+ * @OA\Post(
+ *     path="/api/forgot-password",
+ *     summary="Update password using OTP",
+ *     description="Updates the user's password after verifying the OTP sent to their mobile.",
+ *     operationId="otpUpdatePassword",
+ *     tags={"Forget pwd"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             @OA\Property(property="mobile", type="string", example="+919123456789"),
+ *             @OA\Property(property="otp", type="string", example="1234"),
+ *             @OA\Property(property="new_password", type="string", example="NewPassword123"),
+ *             @OA\Property(property="confirm_password", type="string", example="NewPassword123")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Password updated successfully",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="boolean", example=true),
+ *             @OA\Property(property="message", type="string", example="Password changed successfully.")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Validation error",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="object",
+ *                 @OA\Property(property="mobile", type="array", @OA\Items(type="string", example="The mobile field is required.")),
+ *                 @OA\Property(property="otp", type="array", @OA\Items(type="string", example="The otp field is required.")),
+ *                 @OA\Property(property="new_password", type="array", @OA\Items(type="string", example="The new password field is required.")),
+ *                 @OA\Property(property="confirm_password", type="array", @OA\Items(type="string", example="The confirm password field is required."))
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Invalid OTP",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="boolean", example=false),
+ *             @OA\Property(property="message", type="string", example="You entered wrong otp.")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="Password mismatch",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="boolean", example=false),
+ *             @OA\Property(property="message", type="string", example="Confirm password not matching.")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="User not found",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="boolean", example=false),
+ *             @OA\Property(property="message", type="string", example="Please enter registered mobile number.")
+ *         )
+ *     )
+ * )
+ */
+
+
+    public function otpUpdatePassword(Request $request)
     {
        
         $validator = Validator::make($request->all(), [
@@ -340,6 +456,58 @@ class AuthController extends Controller
         }
     }
 
+    /**
+ * @OA\Post(
+ *     path="/api/change-password",
+ *     summary="Update user password",
+ *     description="Updates the user's password for a registered mobile number.",
+ *     operationId="updatePassword",
+ *     tags={"Update Pwd"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             @OA\Property(property="mobile", type="string", example="+919123456789"),
+ *             @OA\Property(property="new_password", type="string", example="NewPassword123"),
+ *             @OA\Property(property="confirm_password", type="string", example="NewPassword123")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Password updated successfully",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="boolean", example=true),
+ *             @OA\Property(property="message", type="string", example="Password changed successfully.")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Validation error",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="object",
+ *                 @OA\Property(property="mobile", type="array", @OA\Items(type="string", example="The mobile field is required.")),
+ *                 @OA\Property(property="new_password", type="array", @OA\Items(type="string", example="The new password field is required.")),
+ *                 @OA\Property(property="confirm_password", type="array", @OA\Items(type="string", example="The confirm password field is required."))
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="Password mismatch",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="boolean", example=false),
+ *             @OA\Property(property="message", type="string", example="Confirm password not matching.")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="User not found",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="boolean", example=false),
+ *             @OA\Property(property="message", type="string", example="Please enter registered mobile number.")
+ *         )
+ *     )
+ * )
+ */
 
     public function update_password(Request $request)
     {
@@ -388,6 +556,60 @@ class AuthController extends Controller
         }
     }
 
+    /**
+ * @OA\Post(
+ *     path="/api/driver-login",
+ *     summary="Driver authentication",
+ *     description="Authenticates a user using email or mobile and password.",
+ *     operationId="authenticateUser",
+ *     tags={"Driver Login"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             @OA\Property(property="email", type="string", example="user@example.com"),
+ *             @OA\Property(property="password", type="string", example="password123"),
+ *             @OA\Property(property="firbase_token", type="string", example="firebase_token_here")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Authentication successful",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="boolean", example=true),
+ *             @OA\Property(property="message", type="string", example="successfully logged in."),
+ *             @OA\Property(property="user", type="string", example="User Name"),
+ *             @OA\Property(property="id", type="integer", example=1),
+ *             @OA\Property(property="token", type="string", example="generated_token_here")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Validation error",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="object",
+ *                 @OA\Property(property="email", type="array", @OA\Items(type="string", example="The email field is required.")),
+ *                 @OA\Property(property="password", type="array", @OA\Items(type="string", example="The password field is required."))
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Invalid credentials",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="boolean", example=false),
+ *             @OA\Property(property="message", type="string", example="Invalid credentials.")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="Invalid Password",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="boolean", example=false),
+ *             @OA\Property(property="message", type="string", example="Invalid Password.")
+ *         )
+ *     )
+ * )
+ */
     public function authenticate(Request $request)
     {
        $email = $request->email;
@@ -460,36 +682,89 @@ class AuthController extends Controller
         
     }
 
-
+    /**
+ * @OA\Post(
+ *     path="/api/logout",
+ *     summary="User logout",
+ *     description="Logs out the authenticated user by deleting the current access token.",
+ *     operationId="logoutUser",
+ *     tags={"Authentication"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Logged out successfully",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="boolean", example=true),
+ *             @OA\Property(property="message", type="string", example="Logged out successfully.")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Logout failed",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="boolean", example=false),
+ *             @OA\Property(property="message", type="string", example="Logout failed. Please try again."),
+ *             @OA\Property(property="error", type="string", example="Error details here (optional).")
+ *         )
+ *     )
+ * )
+ */
     public function logout(Request $request)
     {
-
-        try{
-
+        try {
+            // Delete the current access token
             $request->user()->currentAccessToken()->delete();
 
-        }catch(\Exception $e) {
-
+            return response()->json([
+                'status' => true,
+                'message' => 'Logged out successfully.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Logout failed. Please try again.',
+                'error' => $e->getMessage(), // Optionally include error details for debugging
+            ], 500);
         }
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Logged out successfully.',
-           
-        ]);
     }
- 
+
+    /**
+ * @OA\Get(
+ *     path="/api/my-profile",
+ *     summary="Get user profile",
+ *     description="Retrieves the authenticated user's profile information.",
+ *     operationId="getUserProfile",
+ *     tags={"Proile"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="User profile retrieved successfully",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="boolean", example=true),
+ *             @OA\Property(property="message", type="string", example="My profile"),
+ *             @OA\Property(property="user", type="object",
+ *                 @OA\Property(property="id", type="integer", example=1),
+ *                 @OA\Property(property="name", type="string", example="John Doe"),
+ *                 @OA\Property(property="email", type="string", example="john@example.com"),
+ *                 @OA\Property(property="mobile", type="string", example="+919123456789"),
+ *                 @OA\Property(property="user_image", type="string", example="uploads/user_image/male.png"),
+ *                 @OA\Property(property="gender", type="string", example="Male"),
+ *                 @OA\Property(property="wallet_amount", type="number", format="float", example=100.50),
+ *                 @OA\Property(property="trip_otp", type="string", example="1234")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="User not found",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="boolean", example=false),
+ *             @OA\Property(property="message", type="string", example="invalid user")
+ *         )
+ *     )
+ * )
+ */
     public function get_user(Request $request)
     {
        
-        // $validator = Validator::make($request->all(), [
-        //     'user_id' => 'required',
-        // ]);
-
-        // //Send failed response if request is not valid
-        // if ($validator->fails()) {
-        //     return response()->json(['error' => $validator->messages()], 200);
-        // }
         $userid = Auth::user()->id;
           $result =  User::where(['id'=>$userid])->select('id','name','email','mobile','user_image','gender','wallet_amount','trip_otp')->first();
           if ($result->gender == 'Male') {
@@ -512,18 +787,42 @@ class AuthController extends Controller
             ]);
           }
     }
+
+    /**
+ * @OA\Get(
+ *     path="/api/my-wallet",
+ *     summary="Get user wallet information",
+ *     description="Retrieves the authenticated user's wallet information.",
+ *     operationId="getUserWallet",
+ *     tags={"user wallet"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="User wallet information retrieved successfully",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="boolean", example=true),
+ *             @OA\Property(property="message", type="string", example="My wallet"),
+ *             @OA\Property(property="user", type="object",
+ *                 @OA\Property(property="id", type="integer", example=1),
+ *                 @OA\Property(property="name", type="string", example="John Doe"),
+ *                 @OA\Property(property="wallet_amount", type="number", format="float", example=150.75)
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="User not found",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="boolean", example=false),
+ *             @OA\Property(property="message", type="string", example="invalid user")
+ *         )
+ *     )
+ * )
+ */
     public function get_user_wallet(Request $request)
     {
-       
         $userid = Auth::user()->id;
           $result =  User::select('id','name','wallet_amount')->where(['id'=>$userid])->first();
-        //   if ($result->gender == 'Male') {
-        //     $result->user_image = "uploads/user_image/male.png";
-        //   }
-        //   if ($result->gender == 'Female') {
-        //     $result->user_image = "uploads/user_image/female.png";
-        //   }
-          
+      
           if(!empty($result)){
             return response()->json([
                 'status' => true,
@@ -537,6 +836,43 @@ class AuthController extends Controller
             ]);
           }
     }
+
+    /**
+ * @OA\Get(
+ *     path="/api/my-wallet-transaction",
+ *     summary="Get user wallet recharge transactions",
+ *     description="Retrieves the authenticated user's wallet recharge transactions.",
+ *     operationId="getUserWalletRechargeTransactions",
+ *     tags={"Wallet Transactions"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="User wallet recharge transactions retrieved successfully",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="boolean", example=true),
+ *             @OA\Property(property="message", type="string", example="My wallet transaction"),
+ *             @OA\Property(property="data", type="array",
+ *                 @OA\Items(type="object",
+ *                     @OA\Property(property="id", type="integer", example=1),
+ *                     @OA\Property(property="user_id", type="integer", example=1),
+ *                     @OA\Property(property="amount", type="number", format="float", example=100.50),
+ *                     @OA\Property(property="status", type="integer", example=1),
+ *                     @OA\Property(property="created_at", type="string", format="date-time", example="2023-10-04T12:00:00Z"),
+ *                     @OA\Property(property="updated_at", type="string", format="date-time", example="2023-10-04T12:00:00Z")
+ *                 )
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="No transactions found",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="boolean", example=false),
+ *             @OA\Property(property="message", type="string", example="data not found!")
+ *         )
+ *     )
+ * )
+ */
+
     public function getUserWalletRechargeTransaction(Request $request)
     {
        
@@ -557,7 +893,41 @@ class AuthController extends Controller
           }
     }
     
-    
+    /**
+ * @OA\Get(
+ *     path="/api/get-location-history",
+ *     summary="Get user location search history",
+ *     description="Retrieves the authenticated user's location search history.",
+ *     operationId="getLocationSearchHistory",
+ *     tags={"Location History"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="User location search history retrieved successfully",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="boolean", example=true),
+ *             @OA\Property(property="message", type="string", example="My search history"),
+ *             @OA\Property(property="data", type="array",
+ *                 @OA\Items(type="object",
+ *                     @OA\Property(property="id", type="integer", example=1),
+ *                     @OA\Property(property="user_id", type="integer", example=1),
+ *                     @OA\Property(property="search_query", type="string", example="New York"),
+ *                     @OA\Property(property="created_at", type="string", format="date-time", example="2023-10-04T12:00:00Z"),
+ *                     @OA\Property(property="updated_at", type="string", format="date-time", example="2023-10-04T12:00:00Z")
+ *                 )
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="No search history found",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="boolean", example=false),
+ *             @OA\Property(property="message", type="string", example="data not found!")
+ *         )
+ *     )
+ * )
+ */
+
     public function getLocationSearchHistory(Request $request)
     {
        
@@ -609,10 +979,8 @@ class AuthController extends Controller
     }
 
     
-     public function travelRequest(Request $request){
-       
-       
-       
+     public function travelRequest(Request $request)
+     {
         $validator = Validator::make($request->all(), [
             'distance' => 'required',
             'trip_type' => 'required',
@@ -825,28 +1193,65 @@ class AuthController extends Controller
           }
     }
     
-    public function travelRequestList(Request $request){
-       
+    /**
+ * @OA\Get(
+ *     path="/api/user-trip-list",
+ *     summary="Get user travel request list",
+ *     description="Retrieves the authenticated user's travel requests.",
+ *     operationId="travelRequestList",
+ *     tags={"User"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Travel request list retrieved successfully",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="boolean", example=true),
+ *             @OA\Property(property="message", type="string", example="My trip list."),
+ *             @OA\Property(property="data", type="array",
+ *                 @OA\Items(type="object",
+ *                     @OA\Property(property="id", type="integer", example=1),
+ *                     @OA\Property(property="user_id", type="integer", example=1),
+ *                     @OA\Property(property="status", type="integer", example=1),
+ *                     @OA\Property(property="trip_details", type="string", example="Trip to New York"),
+ *                     @OA\Property(property="created_at", type="string", format="date-time", example="2023-10-04T12:00:00Z"),
+ *                     @OA\Property(property="updated_at", type="string", format="date-time", example="2023-10-04T12:00:00Z")
+ *                 )
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="No travel requests found",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="status", type="boolean", example=false),
+ *             @OA\Property(property="message", type="string", example="No trip requests found.")
+ *         )
+ *     )
+ * )
+ */
+
+    public function travelRequestList(Request $request)
+    {
         $userid = Auth::user()->id;
-      
-          
-             $data = TravelRequest::where('user_id',$userid)->whereIn('status',[1,2,3,4])->orderBy('id','DESC')->get();
-             
-          if(count($data) > 0){
-              
+
+        $data = TravelRequest::where('user_id', $userid)
+            ->whereIn('status', [1, 2, 3, 4])
+            ->orderBy('id', 'DESC')
+            ->get();
+
+        if ($data->isNotEmpty()) {
             return response()->json([
                 'status' => true,
-                'message' => 'my trip list.',
-                'data'=>$data
+                'message' => 'My trip list.',
+                'data' => $data
             ]);
-            
-          }else{
+        } else {
             return response()->json([
                 'status' => false,
-                'message' => 'something went wrong!'
+                'message' => 'No trip requests found.'
             ]);
-          }
+        }
     }
+
     
     public function cancelTravelRequest(Request $request){
        
